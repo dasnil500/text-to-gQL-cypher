@@ -1,0 +1,94 @@
+{
+  "types": {
+    "Provider": {
+      "fields": {
+        "providerId": "ID",
+        "npi": "String",
+        "name": "String",
+        "gender": "String",
+        "specialties": "Specialty[]",
+        "primaryFacility": "Facility",
+        "affiliations": "Affiliation[]",
+        "appointments": "Appointment[]",
+        "ratings": "ProviderRating"
+      }
+    },
+    "Facility": {
+      "fields": {
+        "facilityId": "ID",
+        "name": "String",
+        "type": "String",
+        "location": "Location",
+        "plansAccepted": "InsurancePlan[]"
+      }
+    },
+    "InsurancePlan": {
+      "fields": {
+        "planId": "ID",
+        "name": "String",
+        "tier": "String",
+        "carrier": "String"
+      }
+    },
+    "Affiliation": {
+      "fields": {
+        "provider": "Provider",
+        "facility": "Facility",
+        "plan": "InsurancePlan",
+        "status": "String",
+        "networkTier": "String",
+        "effectiveDate": "String"
+      }
+    },
+    "Specialty": {
+      "fields": {
+        "code": "String",
+        "name": "String"
+      }
+    },
+    "Appointment": {
+      "fields": {
+        "appointmentId": "ID",
+        "provider": "Provider",
+        "facility": "Facility",
+        "slot": "Slot",
+        "availabilityStatus": "String"
+      }
+    },
+    "Slot": {
+      "fields": {
+        "start": "String",
+        "end": "String",
+        "weekday": "String"
+      }
+    },
+    "ProviderRating": {
+      "fields": {
+        "score": "Float",
+        "reviewCount": "Int"
+      }
+    },
+    "Location": {
+      "fields": {
+        "address": "String",
+        "city": "String",
+        "state": "String",
+        "zip": "String"
+      }
+    }
+  },
+  "root_queries": ["providers", "facilities", "insurancePlans", "appointments"],
+  "relations": [
+    ["Provider", "Affiliation"],
+    ["Provider", "Specialty"],
+    ["Provider", "Appointment"],
+    ["Provider", "ProviderRating"],
+    ["Affiliation", "Facility"],
+    ["Affiliation", "InsurancePlan"],
+    ["Affiliation", "Provider"],
+    ["Facility", "Location"],
+    ["Facility", "InsurancePlan"],
+    ["Appointment", "Facility"],
+    ["Appointment", "Slot"]
+  ]
+}
