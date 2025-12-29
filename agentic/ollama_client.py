@@ -59,7 +59,7 @@ def _mock_completion(prompt: str) -> str:
     return json.dumps({"filters": payload})
 
 
-def run_ollama(prompt: str, model: str = _DEFAULT_MODEL, timeout: int = 120) -> str:
+def run_ollama(prompt: str, model: str = _DEFAULT_MODEL, timeout: int = None) -> str:
     if os.environ.get("MOCK_OLLAMA") == "1":
         return _mock_completion(prompt)
 
