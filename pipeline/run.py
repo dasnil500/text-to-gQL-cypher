@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -12,6 +13,10 @@ from ir.validator import validate_plan
 from compiler.graphql_compiler import compile_graphql
 from compiler.cypher_compiler import graphql_to_cypher
 from agentic.schema_reasoner import infer_filters
+
+
+def _flag_enabled(name: str) -> bool:
+    return os.getenv(name, '0') == '1'
 
 
 def load_schema(path='schema/schema.json'):
@@ -48,7 +53,7 @@ def field_path_exists(field_path, schema):
 
 
 def build_plan_from_text(text, schema):
-    mentions = extract_mentions(text)
+    mentions = [] if _flag_enabled('ABLATION_DISABLE_NER') else extract_mentions(text)
     agent_filters = infer_filters(text, schema, mentions)
 
     # choose a root: prefer Provider if in schema
@@ -90,11 +95,13 @@ def build_plan_from_text(text, schema):
 def process(text, schema_path='schema/schema.json'):
     schema = load_schema(schema_path)
     plan, rejected_filters = build_plan_from_text(text, schema)
-    errors = validate_plan(plan, schema)
+    errors = [] if _flag_enabled('ABLATION_DISABLE_VALIDATION') else validate_plan(plan, schema)
     if rejected_filters:
         raise ValueError(f"Rejected attributes not in schema: {sorted(set(rejected_filters))}")
     if errors:
         raise ValueError(f"Logical plan validation failed: {errors}")
+    if _flag_enabled('ABLATION_DISABLE_GRAPHQL'):
+        raise RuntimeError('GraphQL compiler disabled via ABLATION_DISABLE_GRAPHQL=1')
     query = compile_graphql(plan, schema)
     cypher = graphql_to_cypher(query, schema)
     return {

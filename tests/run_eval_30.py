@@ -39,21 +39,23 @@ QUERIES = [
 def main() -> int:
     results = []
     for idx, text in enumerate(QUERIES, start=1):
+        print(f"\n[{idx:02d}] >>> {text}", flush=True)
         try:
             res = process(text)
-            results.append((idx, text, True, res["query"].strip()))
+            detail = res["query"].strip()
+            ok = True
         except Exception as exc:  # pragma: no cover - dev-only harness
-            results.append((idx, text, False, str(exc)))
+            detail = str(exc)
+            ok = False
 
-    score = sum(1 for _, _, ok, _ in results if ok)
-    print(f"SCORE {score}/{len(QUERIES)}")
-
-    for idx, text, ok, detail in results:
         status = "OK" if ok else "FAIL"
-        print(f"[{idx:02d}] {status} :: {text}")
         snippet = detail.replace("\n", " ")[:200]
         prefix = "GraphQL" if ok else "Error"
-        print(f"    {prefix}: {snippet}...")
+        print(f"    {status}: {prefix}: {snippet}...", flush=True)
+        results.append((idx, text, ok, detail))
+
+    score = sum(1 for _, _, ok, _ in results if ok)
+    print(f"\nSCORE {score}/{len(QUERIES)}")
 
     return 0 if score == len(QUERIES) else 2
 

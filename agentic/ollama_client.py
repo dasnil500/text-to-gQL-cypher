@@ -5,30 +5,6 @@ import subprocess
 from typing import Any, Dict
 
 _DEFAULT_MODEL = os.environ.get("OLLAMA_MODEL", "gpt-oss:20b")
-_MOCK_RESPONSES = {
-    "active cardiology": [
-        {"field_path": "Affiliation.status", "operator": "=", "value": "ACTIVE"},
-        {"field_path": "Specialty.name", "operator": "=", "value": "Cardiology"},
-        {"field_path": "Facility.location.city", "operator": "=", "value": "Los Angeles"},
-        {"field_path": "Facility.type", "operator": "=", "value": "HOSPITAL"},
-        {"field_path": "Facility.plansAccepted.name", "operator": "=", "value": "Blue Shield PPO"},
-    ],
-    "inactive oncology": [
-        {"field_path": "Affiliation.status", "operator": "=", "value": "INACTIVE"},
-        {"field_path": "Specialty.name", "operator": "=", "value": "Oncology"},
-        {"field_path": "Facility.location.city", "operator": "=", "value": "Seattle"},
-        {"field_path": "Facility.type", "operator": "=", "value": "CLINIC"},
-    ],
-    "cigna choice": [
-        {"field_path": "Facility.location.state", "operator": "=", "value": "TX"},
-        {"field_path": "Facility.plansAccepted.name", "operator": "=", "value": "Cigna Choice"},
-    ],
-    "open appointments": [
-        {"field_path": "Facility.location.city", "operator": "=", "value": "Austin"},
-        {"field_path": "Facility.type", "operator": "=", "value": "URGENT_CARE"},
-        {"field_path": "Appointment.availabilityStatus", "operator": "=", "value": "OPEN"},
-    ],
-}
 
 
 class OllamaUnavailableError(RuntimeError):

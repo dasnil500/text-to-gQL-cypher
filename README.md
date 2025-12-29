@@ -83,6 +83,23 @@ PYTHONPATH=. python pipeline/run.py "Show inactive oncology clinics in Seattle"
 
 Each CLI run prints the GraphQL query followed by the deterministic Cypher translation for copy/paste into your target data store.
 
+### Serving as HTTP endpoints
+```bash
+pip install fastapi uvicorn
+PYTHONPATH=. uvicorn service.api:app --host 0.0.0.0 --port 8000
+```
+
+Endpoints:
+- `POST /graphql` → `{ "question": "Find..." }` returns `{ "graphql": "query {...}" }`
+- `POST /cypher`  → same payload, returns `{ "cypher": "MATCH ..." }`
+- `POST /both`    → returns both strings plus a small logical-plan summary.
+
+Requests optionally accept `"schema_path": "schema/schema.json"` to point at custom schemas. All endpoints reuse the same pipeline, so spaCy + LangGraph run exactly once per request.
+
+& C:\ProgramData\anaconda3\Scripts\activate base; $env:PYTHONPATH = '.'; $env:OLLAMA_MODEL = 'gemma3:1b'; python -c "from fastapi.testclient import TestClient; from service.api import app; client = TestClient(app); resp = client.post('/graphql', json={'question': 'Find cardiology providers in Austin'}); print(resp.status_code); print(resp.json())"
+
+& C:\ProgramData\anaconda3\Scripts\activate base; $env:PYTHONPATH = '.'; $env:OLLAMA_MODEL = 'gemma3:1b'; python -c "from fastapi.testclient import TestClient; from service.api import app; client = TestClient(app); resp = client.post('/cypher', json={'question': 'Find cardiology providers in Austin'}); print(resp.status_code); print(resp.json())"
+
 ## Validation harnesses
 - **Deterministic smoke test:** `MOCK_OLLAMA=1 python tests/run_checks.py`.  
 - **Full evaluation:** `unset MOCK_OLLAMA && OLLAMA_MODEL=gpt-oss:20b PYTHONPATH=. python tests/run_eval_30.py` (scored **30/30** most recently). Swap `gpt-oss:20b` for any other local Ollama model when benchmarking.
